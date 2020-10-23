@@ -97,6 +97,12 @@ namespace MaxBorg
         Texture2D redBeam;
         Rectangle laserRectangle;
         Boolean laserFired = false;
+
+        SoundEffect laserSound;
+        SoundEffect turretSound;
+
+        int delay = 180;
+        Boolean isDelayed = false;
         GamePadState oldPad;
         public Game1()
         {
@@ -181,6 +187,9 @@ namespace MaxBorg
             blueBeam = this.Content.Load<Texture2D>("bluebeam");
             greeenBeam = this.Content.Load<Texture2D>("greenbeam");
             redBeam = this.Content.Load<Texture2D>("redbeam");
+
+            laserSound = this.Content.Load<SoundEffect>("fire3");
+            turretSound = this.Content.Load<SoundEffect>("Gun+Luger");
         }
 
         /// <summary>
@@ -205,6 +214,13 @@ namespace MaxBorg
             propelFilledRectangle = new Rectangle(40, 40, (int)propelJ * 14, 35);
             explodeFilledRectangle = new Rectangle(240, 40, (int)storedJ * 14, 35);
             totalEnergyFilledRectangle = new Rectangle(440, 40, (int)(MJ * 1.26), 35);
+            if (isDelayed) {
+                delay--;
+                if (delay == 0) {
+                    isDelayed = false;
+                    delay = 180;
+                }
+            }
             if (isBadFired)
             {
                 if (directionOfBad.Equals("up"))
@@ -274,6 +290,7 @@ namespace MaxBorg
 
                 tickForBadGuy = random.Next(181) + 240;
                 isBadFired = true;
+                turretSound.Play();
                 timerForBad = 0;
             }
             if (xBadTorp >= 270 && xBadTorp <= 490 && yBadTorp >= 170 && yBadTorp <= 250)
@@ -427,8 +444,9 @@ namespace MaxBorg
         }
         public void torpedoPosUpdate(GamePadState pad,GamePadState oldPad)
         {
-            if (pad.Triggers.Right >= 0) {
+            if (pad.Triggers.Right > 0) {
                 laserFired = true;
+                laserSound.Play();
             }
             if (pad.Triggers.Right == 0) {
                 laserFired = false;
@@ -489,6 +507,7 @@ namespace MaxBorg
             if (pad.Triggers.Left > 0 && oldPad.Triggers.Left == 0 && !isFired)
             {
                 isFired = true;
+                turretSound.Play();
                 goingDirection = facingDirection;
                 if (storedJ == -1) { storedJ = 0; }
                 if (storedJ > MJ)
